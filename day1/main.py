@@ -8,7 +8,7 @@ def readInput():
             right.append(int(split_line[1]))
     return left, right
 
-def main():
+def part_one():
     left, right = readInput()
     sorted_left = sorted(left)
     sorted_right = sorted(right)
@@ -21,5 +21,17 @@ def main():
         out += diff
     return out
 
+def part_two():
+    left, right = readInput()
+    out = 0
+    for i in left:
+        c = right.count(i) * i
+        out += c
+    return out
+
 if __name__ == '__main__':
-    print(main())
+    p1_ans = part_one()
+    print(f"Part One: {p1_ans}")
+
+    p2_ans = part_two()
+    print(f"Part Two: {p2_ans}")
