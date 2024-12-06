@@ -1,116 +1,57 @@
+import re
 
-def readInput():
-    content = ''
+def read_input():
+    matrix = []
     with open('input.txt', 'r') as file:
-        content = file.readlines()
-    return content
+        for line in file:
+            matrix.append(line.strip())
+    return matrix
 
-def check_horizontal(input):
+def count_pattern(matrix, pattern):
     count = 0
-    # left to right
-    for line in input:
-        for i in range(3, len(line)):
-            x = line[i-3] == 'X'
-            m = line[i-2] == 'M'
-            a = line[i-1] == 'A'
-            s = line[i] == 'S'
-            if x and m and a and s:
-                count += 1
-
-    # right to left
-    for line in input:
-        for i in range(3, len(line)):
-            s = line[i-3] == 's'
-            a = line[i-2] == 'A'
-            m = line[i-1] == 'M'
-            x = line[i] == 'X'
-            if x and m and a and s:
-                count += 1
-
+    for row in matrix:
+        row_str = ''.join(row)
+        count += len(re.findall(pattern, row_str))
+        count += len(re.findall(pattern, row_str[::-1]))
     return count
 
-def check_vertical(input):
-    n = len(input)
+def get_vertical(matrix):
+    rows, cols = len(matrix), len(matrix[0])
+    rotated = [[0 for _ in range(rows)] for _ in range(cols)] 
+    for r in range(rows):
+        for c in range(cols):
+            rotated[c][rows-1-r] = matrix[r][c]
+    return rotated
+
+def get_diagonal(matrix):
+    diagonals = []
+    rows, cols = len(matrix), len(matrix[0])
+
+    # check down to the left
+    for d in range(-(rows-1), 0):
+        diag = [matrix[i][i-d] for i in range(max(0, d), min(rows, cols+d))]
+        diagonals.append(diag)
+
+    # check down to the right
+    for d in range(rows+cols-1):
+        diag = [matrix[i][d-i] for i in range(max(0, d-cols+1), min(rows, d+1))]
+        diagonals.append(diag)
+
+    return diagonals
+
+def part_one(matrix):
+    pattern = r'XMAS'
     count = 0
-    # top down
-    for i in range(n-3):
-        for j in range(len(input[i])):
-            x = input[i][j] == 'X'
-            m = input[i+1][j] == 'M'
-            a = input[i+2][j] == 'A'
-            s = input[i+3][j] == 'S'
-            if x and m and a and s:
-                count += 1
-
-    # bottom up
-    for i in range(n-3):
-        for j in range(len(input[i])):
-            s = input[i][j] == 'S'
-            a = input[i+1][j] == 'A'
-            m = input[i+2][j] == 'M'
-            x = input[i+3][j] == 'X'
-            if x and m and a and s:
-                count += 1
-
-    return count
-
-def check_diagonal(input):
-    count = 0
-
-    # check moving down right first
-    for i in range(len(input)-3):
-        for j in range(len(input[i])-3):
-            x = input[i][j] == 'X'
-            m = input[i+1][j+1] == 'M'
-            a = input[i+2][j+2] == 'A'
-            s = input[i+3][j+3] == 'S'
-            if x and m and a and s:
-                count += 1
-
-    # check diagonal down left
-    for i in range(len(input)-3):
-        for j in range(3, len(input)):
-            x = input[i][j] == 'X'
-            m = input[i+1][j-1] == 'M'
-            a = input[i+2][j-2] == 'A'
-            s = input[i+3][j-3] == 'S'
-            if x and m and a and s:
-                count += 1
-
-    # check diagonal up right
-    for i in range(3, len(input)):
-        for j in range(len(input[i])-3):
-            x = input[i][j] == 'X'
-            m = input[i-1][j+1] == 'M'
-            a = input[i-2][j+2] == 'A'
-            s = input[i-3][j+3] == 'S'
-            if x and m and a and s:
-                count += 1
-
-    # check diagonal up left
-    for i in range(3, len(input)):
-        for j in range(3, len(input[i])):
-            x = input[i][j] == 'X'
-            m = input[i-1][j-1] == 'M'
-            a = input[i-2][j-2] == 'A'
-            s = input[i-3][j-3] == 'S'
-            if x and m and a and s:
-                count += 1
-
-    return count
-
-def part_one(input):
-    count = 0
-    count += check_horizontal(input)
-    count += check_vertical(input)
-    count += check_diagonal(input)
+    count += count_pattern(matrix, pattern)
+    count += count_pattern(get_vertical(matrix), pattern)
+    count += count_pattern(get_diagonal(matrix), pattern)
     return count
 
 def main():
-    input = readInput() 
+    matrix = read_input() 
 
     # part one
-    print(part_one(input))
+    print(part_one(matrix))
  
 if __name__ == '__main__':
     main()
