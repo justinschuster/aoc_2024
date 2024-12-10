@@ -27,6 +27,18 @@ def parse_ordering_rules(ordering_rules):
             rules_map[first].append(second)
     return rules_map
 
+def make_correct(updates, rules_map):
+    corrected = []
+    for update in updates:
+        new_update = []
+        for i in range(len(update)):
+            curr_page = update[i]
+            if curr_page in rules_map:
+                for rule in rules_map[curr_page]:
+                    if rule not in update[:i]:
+                        
+    return corrected
+
 def part_one(updates, rules_map):
     correct = []
     for update in updates:
@@ -39,6 +51,28 @@ def part_one(updates, rules_map):
                         correct_update = False
         if correct_update:
             correct.append(update)
+ 
+    correct_sum = 0
+    for update in correct:
+        middle_index = len(update) // 2
+        correct_sum += int(update[middle_index])
+    return correct_sum
+
+def part_two(updates, rules_map):
+    correct = []
+    incorrect = []
+    for update in updates:
+        correct_update = True
+        for i in range(len(update)):
+            curr_page = update[i]
+            if curr_page in rules_map:
+                for rule in rules_map[curr_page]:
+                    if rule in update[:i]: 
+                        correct_update = False
+        if correct_update:
+            correct.append(update)
+        else:
+            incorrect.append(update)
  
     correct_sum = 0
     for update in correct:
