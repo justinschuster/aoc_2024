@@ -36,17 +36,16 @@ def make_correct(updates, rules_map):
             if curr_page in rules_map:
                 for rule in rules_map[curr_page]:
                     if rule not in update[:i]:
-                        
+                        continue
     return corrected
 
 def part_one(updates, rules_map):
     correct = []
     for update in updates:
         correct_update = True
-        for i in range(len(update)):
-            curr_page = update[i]
-            if curr_page in rules_map:
-                for rule in rules_map[curr_page]:
+        for i, page in enumerate(update):
+            if page in rules_map:
+                for rule in rules_map[page]:
                     if rule in update[:i]: 
                         correct_update = False
         if correct_update:
@@ -59,26 +58,11 @@ def part_one(updates, rules_map):
     return correct_sum
 
 def part_two(updates, rules_map):
-    correct = []
-    incorrect = []
+    count = 0
     for update in updates:
-        correct_update = True
-        for i in range(len(update)):
-            curr_page = update[i]
-            if curr_page in rules_map:
-                for rule in rules_map[curr_page]:
-                    if rule in update[:i]: 
-                        correct_update = False
-        if correct_update:
-            correct.append(update)
-        else:
-            incorrect.append(update)
- 
-    correct_sum = 0
-    for update in correct:
-        middle_index = len(update) // 2
-        correct_sum += int(update[middle_index])
-    return correct_sum
+        sorted_update = sorted(update, key=lambda page: -len([rule for rule in rules_map[page] if rule in update]))
+        count += int(sorted_update[len(sorted_update) // 2])
+    return count
 
 def main():
     ordering_rules, updates = read_input()
@@ -86,7 +70,11 @@ def main():
 
     # part one 
     correct = part_one(updates, rules_map)
-    print(correct)
+    print(f"Part One: {correct}")
+
+    # part two
+    correct = part_two(updates, rules_map)
+    print(f"Part Two: {correct}")
 
 if __name__ == "__main__":
     main()
