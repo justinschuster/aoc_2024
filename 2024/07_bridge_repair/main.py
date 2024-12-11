@@ -26,10 +26,10 @@ def solve(targets, parts):
         curr = parts[i]
         if try_both_rec(target, curr, curr[0], 1):
             valid.append(target)
-    return len(valid)
+    return sum(valid)
 
 if __name__ == "__main__":
-    targets, parts = get_input('test_input.txt')
+    targets, parts = get_input()
 
     ans1 = solve(targets, parts)
     print(ans1)
