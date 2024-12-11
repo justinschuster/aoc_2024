@@ -1,52 +1,109 @@
-def get_input():
-    matrix = []
-    with open('input.txt', 'r') as file:
-        matrix = [list(line.strip()) for line in file]
-    return matrix
+from concurrent.futures import ProcessPoolExecutor
+from copy import deepcopy
 
-def print_matrix(matrix):
-    for row in matrix:
-        print(''.join(row))
+DIRECTIONS = ('^', 'v', '<', '>')
 
-def find_guard(matrix):
-    guard_symbols = ['<', '>', '^', 'v']
+TURN_90 = {
+    '^': '>',
+    'v': '<',
+    '<': '^',
+    '>': 'v'
+}
+
+TO_ADD = {
+    '^': (-1, 0),
+    'v': (1, 0),
+    '<': (0, -1),
+    '>': (0, 1)
+}
+
+def get_input(input_file="input.txt"):
+    lines = open(input_file, 'r').readlines()
+    return [list(x.replace('\n', '')) for x in lines]
+
+def add_tuple(A, B):
+    if len(A) != len(B):
+        raise ValueError("Tuples must be of equal length")
+    return tuple([A[i] + B[i] for i in range(len(A))])
+
+def get_guard_position(matrix):
     for i, row in enumerate(matrix):
         for j, col in enumerate(row):
-            if col in guard_symbols:
-                return (i, j)
-    return (-1, -1)
+            if col in DIRECTIONS:
+                return (i, j), matrix[i][j]
+    return -1, -1
 
-def rotate_matrix(matrix):
-    return [list(row) for row in zip(*matrix)][::-1]
+def get_obstacles(matrix):
+    obstacles = []
+    for i, row in enumerate(matrix):
+        for j, col in enumerate(row):
+            if col == '#':
+                obstacles.append((i, j))
+    return obstacles
 
-def part_one(matrix):
-    visited = [row[:] for row in matrix]
-    while True:
-        guard_pos = find_guard(matrix)
-        i, j = guard_pos[0], guard_pos[1]
-        visited[i][j] = 'X'
-        if i-1 < 0:
-            break
-        elif matrix[i-1][j] == '#':
-            matrix = rotate_matrix(matrix)
-            visited = rotate_matrix(visited)
-        else:
-            temp = matrix[i-1][j]
-            matrix[i-1][j] = matrix[i][j]
-            matrix[i][j] = temp
+def is_outside(pos, dir, rows, cols):
+    x, y = pos
+    return any([
+        (dir == '^' and x == 0),
+        (dir == 'v' and x == rows - 1),
+        (dir == '<' and y == 0),
+        (dir == '>' and y == cols - 1)
+    ])
 
-    count = 0
-    for row in visited:
-        for col in row:
-            if col == 'X': count += 1
-    return count
+def add_pos(pos, dir):
+    return add_tuple(pos, TO_ADD[dir])
 
-def main():
-    matrix = get_input()
+def solve(matrix):
+    rows, cols = len(matrix), len(matrix[0]) # find matrix size
 
-    # part one
-    steps = part_one(matrix)
-    print(f"Part One: {steps}")
+    obstacles = get_obstacles(matrix) # find all obstacles in matrix
+    visited_obstacles = [] # keep track of obstacles we've seen
+    pos, dir = get_guard_position(matrix) # find starting position of guard
+
+    positions = [pos] # keep track of positions we've visted
+    is_loop = False # loop boolean for Part Two
+    while not is_outside(pos, dir, rows, cols): # make sure were bounded
+        next_pos = add_pos(pos, dir) # move 1 step
+        x, y = pos
+        matrix[x][y] = ' '
+        if next_pos in obstacles:
+            if (next_pos, dir) in visited_obstacles:
+                is_loop = True
+                break
+
+            visited_obstacles.append((next_pos, dir))
+            dir = TURN_90[dir]
+            next_pos = pos
+            continue
+
+        pos = next_pos
+        if pos not in positions:
+            positions.append(pos)
+
+    return len(positions), positions, is_loop
+
+def process_path(args):
+    matrix, coords = args
+    i, j = coords
+    new_matrix = deepcopy(matrix)
+    if new_matrix[i][j] in DIRECTIONS:
+        return 0
+
+    new_matrix[i][j] = '#'
+    _, _, is_loop = solve(new_matrix)
+    return i if is_loop else 0
+
+def solve2(matrix, available_path):
+    with ProcessPoolExecutor() as executor:
+        results = list(executor.map(
+            process_path, [(matrix, coords) for coords in available_path]))
+    return sum(results)
 
 if __name__ == "__main__":
-    main()
+    puzzle1 = get_input()
+    puzzle2 = get_input()
+
+    ans1, positions, _ = solve(puzzle1)
+    ans2 = solve2(puzzle2, positions)
+    ans = (ans1, ans2)
+    print(ans)
