@@ -16,9 +16,10 @@ def try_both_rec(target, parts, prev, idx):
     new_prod = prev * parts[idx]
     if new_prod == target or new_sum == target:
         return True
-    else:
-        comb = try_both_rec(target, parts, new_prod, idx+1) or try_both_rec(target, parts, new_sum, idx+1)
-        return comb
+    return any([
+        try_both_rec(target, parts, new_prod, idx+1),
+        try_both_rec(target, parts, new_sum, idx+1)
+    ])
 
 def solve(targets, parts):
     valid = []
