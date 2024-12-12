@@ -24,12 +24,33 @@ def binary_traversal(root, values, target):
 
     new_values = values.copy()
     next_value = new_values.pop(0)
+
     add_value = root + next_value
     mul_value = root * next_value
 
     return any([
         binary_traversal(add_value, new_values, target),
         binary_traversal(mul_value, new_values, target)
+    ])
+
+def ternary_traversal(root, values, target):
+    if values == [] and root == target:
+        return True
+
+    if values == []:
+        return False
+
+    new_values = values.copy()
+    next_value = new_values.pop(0)
+
+    add_value = root + next_value
+    mul_value = root * next_value
+    con_value = int(str(root) + str(next_value))
+
+    return any([
+        ternary_traversal(add_value, new_values, target),
+        ternary_traversal(mul_value, new_values, target),
+        ternary_traversal(con_value, new_values, target)
     ])
 
 def solve(input):
@@ -41,6 +62,9 @@ def solve(input):
         curr = equations[i].pop(0)
         if binary_traversal(curr, equations[i], target):
             binary_count += target
+
+        if ternary_traversal(curr, equations[i], target):
+            ternary_count += target
 
     return binary_count, ternary_count
 
