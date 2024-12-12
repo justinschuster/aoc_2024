@@ -37,18 +37,21 @@ def solve(input):
             x1, y1 = pair[0]
             x2, y2 = pair[1]
 
+            # create vector for difference then compute Euclidean Distance
             v = (x2-x1, y2-y1)
             d = sqrt((x2-x1)**2 + (y2-y1)**2)
 
             if d == 0:
                 continue
 
+            # find unit vector
             u = (v[0]/d, v[1]/d)
 
+            # find point twice the distance in direction of unit vector
             ax = int(round(2*d*u[0] + x1, 2))
             ay = int(round(2*d*u[1] + y1, 2))
 
-            if 0 <= ax < cols and 0 <= ay < rows:            
+            if 0 <= ax < cols and 0 <= ay < rows:
                 antinodes.add((ax, ay))
 
     return len(antinodes)
