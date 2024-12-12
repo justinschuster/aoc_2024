@@ -69,7 +69,7 @@ def solve(input):
     return binary_count, ternary_count
 
 if __name__ == "__main__":
-    input = read_input('test_input.txt')
+    input = read_input()
 
     answer  = solve(input)
     print(answer)
