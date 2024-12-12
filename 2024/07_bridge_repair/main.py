@@ -1,36 +1,51 @@
-def get_input(input='input.txt'):
+def read_input(input='input.txt'):
     targets = []
-    parts = []
-    with open(input, 'r') as file:
-        for line in file:
-            before, after = line.strip().split(':')
-            targets.append(int(before))
-            parts.append([int(num) for num in after.strip().split()])
-    return targets, parts
+    equations = []
 
-def try_both_rec(target, parts, prev, idx):
-    if idx == len(parts):
+    lines = open(input, 'r').readlines()
+
+    for line in lines:
+        target, equation = line.replace('\n', '').split(':')
+
+        target = int(target)
+        equation = [int(x) for x in equation.strip().split()]
+
+        targets.append(target)
+        equations.append(equation)
+
+    return targets, equations
+
+def binary_traversal(root, values, target):
+    if values == [] and root == target:
+        return True
+
+    if values == []:
         return False
 
-    new_sum = prev + parts[idx]
-    new_prod = prev * parts[idx]
-    if new_prod == target or new_sum == target:
-        return True
+    new_values = values.copy()
+    next_value = new_values.pop(0)
+    add_value = root + next_value
+    mul_value = root * next_value
+
     return any([
-        try_both_rec(target, parts, new_prod, idx+1),
-        try_both_rec(target, parts, new_sum, idx+1)
+        binary_traversal(add_value, new_values, target),
+        binary_traversal(mul_value, new_values, target)
     ])
 
-def solve(targets, parts):
-    valid = []
+def solve(input):
+    targets, equations = input
+
+    binary_count = 0
+    ternary_count = 0
     for i, target in enumerate(targets):
-        curr = parts[i]
-        if try_both_rec(target, curr, curr[0], 1):
-            valid.append(target)
-    return sum(valid)
+        curr = equations[i].pop(0)
+        if binary_traversal(curr, equations[i], target):
+            binary_count += target
+
+    return binary_count, ternary_count
 
 if __name__ == "__main__":
-    targets, parts = get_input()
+    input = read_input('test_input.txt')
 
-    ans1 = solve(targets, parts)
-    print(ans1)
+    answer  = solve(input)
+    print(answer)
