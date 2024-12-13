@@ -57,5 +57,5 @@ def solve(input):
     return len(antinodes)
 
 if __name__ == '__main__':
-    input = read_input() 
+    input = read_input()
     print(solve(input))
