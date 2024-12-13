@@ -23,7 +23,7 @@ def generate_diskmap(input):
 def sort_diskmap(diskmap):
     dots = 0
     for i, digit in enumerate(diskmap):
-        if digits == '.':
+        if digit == '.':
             dots += 1
             for j in diskmap[::-1]:
                 continue
@@ -33,6 +33,7 @@ def solve(input):
     diskmap = generate_diskmap(input)
 
     return diskmap
+
 
 if __name__ == '__main__':
     input = read_input()
