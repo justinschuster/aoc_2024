@@ -1,5 +1,5 @@
 # prompt: https://adventofcode.com/2024/day/11
-
+from collections import defaultdict
 from itertools import chain
 
 from ...base import StrSplitSolution, answer
@@ -33,7 +33,18 @@ class Solution(StrSplitSolution):
 
     # @answer(1234)
     def part_2(self) -> int:
-        pass
+        stones: dict[str, int] = {k: 1 for k in self.input}
+        assert len(stones) == len(self.input)
+
+        for _ in range(75):
+            new_stones = defaultdict(int)
+            for stone, num in stones.items():
+                for new_stone in step_stone(stone):
+                    new_stones[new_stone] += num
+
+            stones = new_stones
+
+        return sum(stones.values())
 
     # @answer((1234, 4567))
     # def solve(self) -> tuple[int, int]:
