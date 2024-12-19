@@ -7,7 +7,7 @@ rules:
 '''
 
 
-def read_input(input='11_plutonian_pebbles/input.txt'):
+def read_input(input='input.txt'):
     text = open(input, 'r').read().split()
     return list(int(x) for x in text)
 
@@ -32,15 +32,18 @@ def blink(stones):
     out = []
 
     for stone in stones:
-        n = len(str(stone))
         if stone == 0:
             out.append(1)
-        elif n % 2 == 0:
+            continue
+
+        n = len(str(stone))
+        if n % 2 == 0:
             left, right = split_stone(stone)
             out.append(left)
             out.append(right)
-        else:
-            out.append(stone*2024)
+            continue
+
+        out.append(stone*2024)
 
     return out
 
@@ -55,5 +58,5 @@ def solve(stones, blinks):
 
 if __name__ == '__main__':
     puzzle = read_input()
-    answer = solve(puzzle, 25)
-    print(answer)
+    answer1 = solve(puzzle, 25)
+    print(answer1)
